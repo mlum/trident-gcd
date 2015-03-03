@@ -176,22 +176,9 @@ public class GCDState<T> implements IBackingMap<T> {
                 String key = toDatastoreKey(keys.get(i));
                 T val = vals.get(i);
                 byte[] serialized = _ser.serialize(val);
-                BeginTransactionRequest.Builder treq = BeginTransactionRequest.newBuilder();
-                BeginTransactionResponse tres = _datastore.beginTransaction(treq.build());
-                ByteString tx = tres.getTransaction();
-                LookupRequest.Builder lreq = LookupRequest.newBuilder();
                 Key.Builder dsKey = Key.newBuilder().addPathElement(Key.PathElement.newBuilder().setKind(_opts.datastoreKind).setName(key));
-                lreq.addKey(dsKey);
-                lreq.getReadOptionsBuilder().setTransaction(tx);
-                LookupResponse lresp = _datastore.lookup(lreq.build());
                 CommitRequest.Builder creq = CommitRequest.newBuilder();
-                creq.setTransaction(tx);
-                Entity.Builder entity;
-                if(lresp.getFoundCount() > 0) {
-                    entity = lresp.getFound(0).getEntity().newBuilder();
-                } else {
-                    entity = Entity.newBuilder().setKey(dsKey);
-                }
+                Entity.Builder entity = Entity.newBuilder().setKey(dsKey);
                 entity.addProperty(Property.newBuilder().setName(_opts.datastoreProperty).setValue(Value.newBuilder().setBlobValue(ByteString.copyFrom(serialized))));
                 creq.setMutation(Mutation.newBuilder().addUpsert(entity));
                 _datastore.commit(creq.build());

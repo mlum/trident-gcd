@@ -1,4 +1,4 @@
-(defproject trident-gcd "0.0.1-wip4"
+(defproject trident-gcd "0.0.1-wip5"
   :description "This library implements a Trident state on top of the Google Cloud Datastore."
   :url "http://storm.apache.org/documentation/Trident-state.html"
   :license {:name "Apache License"
