@@ -1,4 +1,8 @@
-(defproject trident-gcd "0.0.1-wip1"
+(defproject trident-gcd "0.0.1-wip2"
+  :description "This library implements a Trident state on top of the Google Cloud Datastore."
+  :url "http://storm.apache.org/documentation/Trident-state.html"
+  :license {:name "Apache License"
+            :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :javac-options ["-Xlint:unchecked"]
