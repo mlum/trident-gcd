@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import backtype.storm.task.IMetricsContext;
+import backtype.storm.topology.ReportedFailedException;
 import backtype.storm.tuple.Values;
 import storm.trident.state.JSONNonTransactionalSerializer;
 import storm.trident.state.JSONOpaqueSerializer;
@@ -145,7 +146,7 @@ public class GCDState<T> implements IBackingMap<T> {
         List<T> values = new ArrayList(keys.size());
         try {
             for(List<Object> key: keys) {
-                byte[] bytes = null;
+                T val = null;
                 LookupRequest.Builder lreq = LookupRequest.newBuilder();
                 Key.Builder dsKey = Key.newBuilder().addPathElement(Key.PathElement.newBuilder().setKind(_opts.datastoreKind).setName(toDatastoreKey(key)));
                 lreq.addKey(dsKey);
@@ -154,14 +155,15 @@ public class GCDState<T> implements IBackingMap<T> {
                     Entity entity = lresp.getFound(0).getEntity();
                     for(Property prop : entity.getPropertyList()) {
                         if(prop.getName().equals(_opts.datastoreProperty)) {
-                            bytes = prop.getValue().getBlobValue().toByteArray();
+                            byte[] bytes = prop.getValue().getBlobValue().toByteArray();
+                            val = (T)_ser.deserialize(bytes);
                         }
                     }
                 }
-                values.add((T)_ser.deserialize(bytes));
+                values.add(val);
             }
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new ReportedFailedException(e);
         }
         return values;
     }
@@ -195,7 +197,7 @@ public class GCDState<T> implements IBackingMap<T> {
                 _datastore.commit(creq.build());
             }
         } catch(Exception e) {
-            throw new RuntimeException(e);
+            throw new ReportedFailedException(e);
         }
     }
 
