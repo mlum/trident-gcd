@@ -177,7 +177,7 @@ public class GCDState<T> implements IBackingMap<T> {
                 T val = vals.get(i);
                 byte[] serialized = _ser.serialize(val);
                 Key.Builder dsKey = Key.newBuilder().addPathElement(Key.PathElement.newBuilder().setKind(_opts.datastoreKind).setName(key));
-                CommitRequest.Builder creq = CommitRequest.newBuilder();
+                CommitRequest.Builder creq = CommitRequest.newBuilder().setMode(CommitRequest.Mode.NON_TRANSACTIONAL);
                 Entity.Builder entity = Entity.newBuilder().setKey(dsKey);
                 entity.addProperty(Property.newBuilder().setName(_opts.datastoreProperty).setValue(Value.newBuilder().setBlobValue(ByteString.copyFrom(serialized))));
                 creq.setMutation(Mutation.newBuilder().addUpsert(entity));
